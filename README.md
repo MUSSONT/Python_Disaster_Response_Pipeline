@@ -28,3 +28,4 @@ run.py - kicks off flask process
 ## future dev
 - [PorterStemmer().stem(w) for w in words if w not in stopwords.words("english")].
 - build custom transformers to extract whether a message includes a question, specific words, locations, or numbers!
+- deploy to heroku
