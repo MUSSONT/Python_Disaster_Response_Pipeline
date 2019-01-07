@@ -23,3 +23,8 @@ run.py - kicks off flask process
     `python run.py`
 
 3. Go to http://0.0.0.0:3001/
+
+
+## future dev
+- [PorterStemmer().stem(w) for w in words if w not in stopwords.words("english")].
+- build custom transformers to extract whether a message includes a question, specific words, locations, or numbers!
