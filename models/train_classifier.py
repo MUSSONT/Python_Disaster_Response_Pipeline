@@ -22,7 +22,13 @@ nltk.download(['punkt', 'wordnet', 'averaged_perceptron_tagger', 'stopwords'])
 url_regex = 'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+'
 
 def load_data(database_filepath):
-        # load data from database
+        """func to get data from db and prep it for use
+        args:
+        database_filepath - locatuon of db
+        returns - 
+        X - features
+        y - target variable
+        & column names for later use """
     engine = create_engine('sqlite:///data/DisasterResponse.db')
     df = pd.read_sql_table('CleanMessages2', con=engine)
     X = df['message']
@@ -31,9 +37,15 @@ def load_data(database_filepath):
     return X, y , y.columns
 
 def compute_text_length(data):
+    """works out text length of each string
+    args: data = message
+    outputs: length of message"""
     return np.array([len(text) for text in data]).reshape(-1, 1)
 
 def tokenize(text):
+    """func to take mesages and apply token trans, remove web links , punctuation, stop words
+    args - message text
+    outputs : cleaned tokenized text"""
     detected_urls = re.findall(url_regex, text)
     for url in detected_urls:
         text = text.replace(url, "urlplaceholder")
@@ -51,6 +63,7 @@ def tokenize(text):
 
 
 def build_model():
+    """func that creates and returns pipeline"""
     pipeline = Pipeline([
         ('features', FeatureUnion([
             ('text_pipeline', Pipeline([
@@ -61,11 +74,16 @@ def build_model():
         ('clf', MultiOutputClassifier(RandomForestClassifier(min_samples_split=4, n_estimators=200)))])
     return pipeline
  
-
-
-
-
 def evaluate_model(model, X_test, Y_test, category_names):
+    """func to provide statistics for model evaluation
+    args:
+    model - the trained pipeline
+    X_test - features for testing
+    Y_test - target variables for testing
+    category_names - colummnn names for mapping
+    
+    outputs - prints stats for comparing performance of the model"""
+    
     y_pred = model.predict(X_test)
     y_test = Y_test.values
     allstats_array = []
@@ -81,11 +99,18 @@ def evaluate_model(model, X_test, Y_test, category_names):
     print(pd.DataFrame(allstats_array, columns=['cat','accuracy','recall','precision','f1_score']))
 
 def save_model(model, model_filepath):
+    """ func to save model as pickle
+    
+    args :
+    model - trained pipeline
+    mdel_filepath - name and destination to save"""
+    
     with open(model_filepath, 'wb') as fp:
         pickle.dump(model, fp)
 
 
 def main():
+    """func to cycle through all the above funx and print progress"""
     if len(sys.argv) == 3:
         database_filepath, model_filepath = sys.argv[1:]
         print('Loading data...\n    DATABASE: {}'.format(database_filepath))
