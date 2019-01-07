@@ -4,12 +4,26 @@ import sqlalchemy
 from sqlalchemy import engine, create_engine
 
 def load_data(messages_filepath, categories_filepath):
+    """generates dataframe from the 2 data sources, messages and catgories
+    
+    Args -
+    messages_filepath 
+    categories_fielpath
+    
+    returns
+    Merges above sources into one dataframe"""
     messages = pd.read_csv(messages_filepath)
     categories = pd.read_csv(categories_filepath)
     df = pd.merge(messages,categories, on='id', how='outer')
     return df
 
 def clean_data(df):
+    """function to clean data,drops dupes, prepares needed columns
+    
+    Args:
+    df - dirty data frame parsed in
+    Returns :
+    cleaned df"""
     categories = df['categories'].str.split(';', expand=True)
     category_colnames  =[ x[:-2] for x in categories.iloc[0]]
     categories.columns = category_colnames
@@ -26,12 +40,20 @@ def clean_data(df):
     return df
 
 def save_data(df, database_filename):
+    """saves df to a sql table 
+    
+    Args:
+    Df - the dataframe for saving
+    database_filename - path for db to save to
+    
+    Returns: nothing """
     engine = create_engine('sqlite:///{}'.format(database_filename))
     df.to_sql('CleanMessages2', engine, index=False)
     pass  
 
 
 def main():
+    """main function to go through steps of parsing through each func"""
     if len(sys.argv) == 4:
         messages_filepath, categories_filepath, database_filepath = sys.argv[1:]
         print('Loading data...\n    MESSAGES: {}\n    CATEGORIES: {}'
